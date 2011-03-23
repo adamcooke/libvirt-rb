@@ -8,6 +8,9 @@ module Libvirt
 
         attr_accessor :type
         attr_accessor :display
+        attr_accessor :port
+        attr_accessor :autoport
+        attr_accessor :listen
 
         # Initializes a new graphics device. If an XML string is given,
         # it will be used to attempt to initialize the attributes.
@@ -21,7 +24,10 @@ module Libvirt
           xml = Nokogiri::XML(xml).root if !xml.is_a?(Nokogiri::XML::Element)
           try(xml.xpath("//graphics[@type]"), :preserve => true) { |result| self.type = result["type"].to_sym }
           try(xml.xpath("//graphics[@display]"), :preserve => true) { |result| self.display = result["display"] }
-
+          try(xml.xpath("//graphics[@port]"), :preserve => true) { |result| self.port = result["port"].to_i }
+          try(xml.xpath("//graphics[@autoport]"), :preserve => true) { |result| self.autoport = (result["autoport"] == 'yes') }
+          try(xml.xpath("//graphics[@listen]"), :preserve => true) { |result| self.listen = result["listen"] }
+          
           raise_if_unparseables(xml.xpath("//graphics/*"))
         end
 
@@ -29,7 +35,9 @@ module Libvirt
         def to_xml(xml=Nokogiri::XML::Builder.new)
           options = { :type => type }
           options[:display] = display if display
-
+          options[:port] = port if port
+          options[:autoport] = (autoport ? 'yes' : 'no') unless autoport.nil?
+          options[:listen] = listen if listen
           xml.graphics(options)
           xml.to_xml
         end

@@ -25,7 +25,17 @@ Protest.describe("Interface device spec") do
       @instance = @klass.new("<interface><source network='foo'/></interface>")
       assert_equal 'foo', @instance.source_network
     end
-
+    
+    should "parse the source from a bridge" do
+      @instance = @klass.new("<interface><source bridge='foo'/></interface>")
+      assert_equal 'foo', @instance.source_bridge
+    end
+    
+    should "parse the target" do
+      @instance = @klass.new("<interface><target dev='foo'/></interface>")
+      assert_equal 'foo', @instance.target
+    end
+    
     should "raise an exception if unsupported tags exist" do
       assert_raises(Libvirt::Exception::UnparseableSpec) {
         @klass.new("<interface><foo/></interface>")

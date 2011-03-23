@@ -10,6 +10,8 @@ module Libvirt
         attr_accessor :mac_address
         attr_accessor :model_type
         attr_accessor :source_network
+        attr_accessor :source_bridge
+        attr_accessor :target
 
         # Initializes a new network interface device. If an XML string
         # is given, it will be used to attempt to initialize the attributes.
@@ -24,8 +26,10 @@ module Libvirt
             self.type = interface["type"].to_sym if interface["type"]
             try(interface.xpath("mac")) { |result| self.mac_address = result["address"] }
             try(interface.xpath("model")) { |result| self.model_type = result["type"] }
+            try(interface.xpath("target")) { |result| self.target = result["dev"] }
             try(interface.xpath("source")) do |result|
               self.source_network = result["network"]
+              self.source_bridge = result["bridge"]
             end
 
             raise_if_unparseables(interface.xpath("*"))
@@ -37,7 +41,12 @@ module Libvirt
           xml.interface(:type => type) do |i|
             i.mac(:address => mac_address) if mac_address
             i.model(:type => model_type) if model_type
-            i.source(:network => source_network) if source_network
+            i.target(:dev => target) if target
+            if source_network
+              i.source(:network => source_network)
+            elsif source_bridge
+              i.source(:bridge => source_bridge)
+            end
           end
 
           xml.to_xml

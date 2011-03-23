@@ -26,6 +26,13 @@ Protest.describe("Disk device spec") do
       assert_equal 'bar', @instance.source
     end
 
+    should "parse the driver" do
+      @instance = @klass.new("<disk type='file'><driver name='foo' type='bar' cache='baz'/></disk>")
+      assert_equal 'foo', @instance.driver
+      assert_equal 'bar', @instance.driver_type
+      assert_equal 'baz', @instance.driver_cache
+    end
+
     should "parse the target" do
       @instance = @klass.new("<disk type='file'><target bus='foo' dev='bar'/></disk>")
       assert_equal 'foo', @instance.target_bus

@@ -80,7 +80,10 @@ module Libvirt
             self.features << feature.name.to_sym
           end
         end
-
+        
+        try(root.xpath("//domain/seclabel")) do |result|
+        end
+        
         raise_if_unparseables(root.xpath("//domain/*"))
       end
 
