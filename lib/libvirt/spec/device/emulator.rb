@@ -7,7 +7,11 @@ module Libvirt
         # Initialize an emulator device with the given path. The capabilities
         # XML from {Connection} describes what emulators are available.
         def initialize(path)
-          @path = path
+          if path.is_a?(Nokogiri::XML::Element)
+            @path = path.text
+          else
+            @path = path
+          end
         end
 
         # Returns the XML for this device.
