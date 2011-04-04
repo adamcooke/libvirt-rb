@@ -30,22 +30,26 @@ module Libvirt
         # Loads data from XML.
         def load!(xml)
           xml = Nokogiri::XML(xml).root if !xml.is_a?(Nokogiri::XML::Element)
-          try(xml.xpath("//disk[@type]"), :preserve => true) { |result| self.type = result["type"].to_sym }
-          try(xml.xpath("//disk[@device]"), :preserve => true) { |result| self.device = result["device"].to_sym }
-          try(xml.xpath("//disk/source")) { |result| self.source = result["dev"] || result["file"] }
           
-          try(xml.xpath("//disk/driver")) do |result|
-            self.driver = result['name']
-            self.driver_type = result["type"]
-            self.driver_cache = result["cache"]
+          try(xml.xpath("//disk")) do |disk|
+            self.type = disk["type"].to_sym if disk["type"]
+            self.device = disk["device"].to_sym if disk["device"]
+            
+            try(disk.xpath("source")) { |result| self.source = result['dev'] || result['file'] }
+            
+            try(disk.xpath("driver")) do |result|
+              self.driver = result['name']
+              self.driver_type = result["type"]
+              self.driver_cache = result["cache"]
+            end
+            
+            try(disk.xpath("target")) do |result|
+              self.target_dev = result["dev"]
+              self.target_bus = result["bus"]
+            end
+            
+            raise_if_unparseables(disk.xpath("*"))
           end
-          
-          try(xml.xpath("//disk/target")) do |result|
-            self.target_dev = result["dev"]
-            self.target_bus = result["bus"]
-          end
-
-          raise_if_unparseables(xml.xpath("//disk/*"))
         end
 
         # Returns the XML representation of this device.
