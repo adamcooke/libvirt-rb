@@ -14,7 +14,7 @@ module FFI
     #   unsigned int threads;/* number of threads per core */
     # };
     class NodeInfo < ::FFI::Struct
-      layout :model, :char, 32,
+      layout :model, [:char, 32],
              :memory, :ulong,
              :cpus, :uint,
              :mhz, :uint,
