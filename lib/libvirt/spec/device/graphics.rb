@@ -11,6 +11,7 @@ module Libvirt
         attr_accessor :port
         attr_accessor :autoport
         attr_accessor :listen
+        attr_accessor :passwd
 
         # Initializes a new graphics device. If an XML string is given,
         # it will be used to attempt to initialize the attributes.
@@ -25,6 +26,7 @@ module Libvirt
           try(xml.xpath("//graphics[@type]"), :preserve => true) { |result| self.type = result["type"].to_sym }
           try(xml.xpath("//graphics[@display]"), :preserve => true) { |result| self.display = result["display"] }
           try(xml.xpath("//graphics[@port]"), :preserve => true) { |result| self.port = result["port"].to_i }
+          try(xml.xpath("//graphics[@passwd]"), :preserve => true) { |result| self.passwd = result["passwd"].to_s }
           try(xml.xpath("//graphics[@autoport]"), :preserve => true) { |result| self.autoport = (result["autoport"] == 'yes') }
           try(xml.xpath("//graphics[@listen]"), :preserve => true) { |result| self.listen = result["listen"] }
           
@@ -36,6 +38,7 @@ module Libvirt
           options = { :type => type }
           options[:display] = display if display
           options[:port] = port if port
+          options[:passwd] = passwd unless passwd.nil?
           options[:autoport] = (autoport ? 'yes' : 'no') unless autoport.nil?
           options[:listen] = listen if listen
           xml.graphics(options)
