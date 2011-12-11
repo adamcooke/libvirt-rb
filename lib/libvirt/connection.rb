@@ -212,12 +212,12 @@ module Libvirt
       @pointer
     end
 
+    protected
+
     # Cleans up the connection by releasing the connection object. This
     # never needs to be called directly since there is a finalizer on
     # this object to clean the connection. Therefore, to close the connection,
     # simply release the reference to the connection.
-
-    # I disagree, this cleanup never seems to happen in a timely way.
     def finalize(*args)
       FFI::Libvirt.virConnectClose(self) rescue nil
     end
